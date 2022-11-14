@@ -52,6 +52,10 @@
                     <v-btn icon @click="copyFileLink(file, i)">
                         <v-icon>mdi-content-copy</v-icon>
                     </v-btn>
+                                        
+                    <v-btn icon @click="openFile(file)">
+                        <v-icon>mdi-open-in-new</v-icon>
+                    </v-btn>
                     {{file}}
                 </li>
             </ul>
@@ -99,10 +103,10 @@
 
         var store = {
             state: {
-                allFiles: []    // See Vue created method
+                allFiles: [],    // See Vue created method
+                baseUrl: ''     // See Vue created method
             }
         }
-
 
         const Home = Vue.component('Home', {
             template: '#home-template',
@@ -112,6 +116,15 @@
                 }
             },
             methods: {
+                openFile(fileName){
+                    // https://kashodiya.github.io/myfiles/#/
+                    // let url = window.location.href;
+                    // let pos = url.indexOf('index.html');
+                    // url = url.substring(0, pos - 1) + fileName;
+                    let url = this.state.baseUrl + fileName;
+                    console.log(url);
+                    window.open(url, '_blank').focus();                   
+                },
                 copyFileLink(fileName, index) {
                     let link = this.$refs['link-' + index][0];
                     link.classList.add('shake');
@@ -119,10 +132,10 @@
                     setTimeout(() => {
                         link.classList.remove('shake');
                     }, 1000);
-                    
                     console.log(link);
 
-                    navigator.clipboard.writeText(fileName);
+                    let url = this.state.baseUrl + fileName;
+                    navigator.clipboard.writeText(url);
                 }
             },
             created() {
@@ -167,6 +180,13 @@
                 let allFiles = await (await fetch('all-files.json')).json();
                 store.state.allFiles = allFiles;
                 console.log({ allFiles });
+
+                let baseUrl = window.location.href;
+                let pos = baseUrl.indexOf('index.html');
+                baseUrl = baseUrl.substring(0, pos - 1);
+                console.log({baseUrl});
+                store.state.baseUrl = baseUrl;
+
             }
         })
 
