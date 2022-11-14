@@ -56,6 +56,11 @@
                     <v-btn icon @click="openFile(file)">
                         <v-icon>mdi-open-in-new</v-icon>
                     </v-btn>
+
+                    <v-btn icon @click="playFile(file)">
+                        <v-icon>mdi-play-circle</v-icon>
+                    </v-btn>
+
                     {{file}}
                 </li>
             </ul>
@@ -116,13 +121,24 @@
                 }
             },
             methods: {
+                playFile(fileName){
+                    if(fileName.endsWith('.zip')){
+                        let url = 'https://kashodiya.github.io/swar-keyboard-composer/?sourceLink=' + this.state.baseUrl + fileName;
+                        this.openURL(url);
+                    }else{
+                        this.openFile(fileName);
+                    }
+                },
                 openFile(fileName){
                     // https://kashodiya.github.io/myfiles/#/
                     // let url = window.location.href;
                     // let pos = url.indexOf('index.html');
                     // url = url.substring(0, pos - 1) + fileName;
                     let url = this.state.baseUrl + fileName;
-                    console.log(url);
+                    this.openURL(url);
+                },
+                openURL(url){
+                    console.log('Opening: ' + url);
                     window.open(url, '_blank').focus();                   
                 },
                 copyFileLink(fileName, index) {
@@ -190,6 +206,9 @@
                     let pos = baseUrl.indexOf('index.html');
                     baseUrl = baseUrl.substring(0, pos - 1);
                 }
+                //TODO: Comment following line
+                baseUrl = 'https://kashodiya.github.io/myfiles';
+
                 console.log({baseUrl});
                 store.state.baseUrl = baseUrl;
 
