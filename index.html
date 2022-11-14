@@ -185,7 +185,7 @@
                 let pos = baseUrl.indexOf('index.html');
                 if(pos == -1){
                     //You are browing real site
-                    baseUrl.substring(0, baseUrl.length - 3);
+                    baseUrl = 'https://kashodiya.github.io/myfiles';
                 }else{
                     //You are testing locally
                     baseUrl = baseUrl.substring(0, pos - 1);
