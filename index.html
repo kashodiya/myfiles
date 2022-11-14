@@ -1,11 +1,176 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>My Files</title>
+    <!-- Icon names are here: https://pictogrammers.github.io/@mdi/font/2.0.46/ -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vuetify/2.6.2/vuetify.css" rel="stylesheet">
+
+    <style>
+        .shake {
+            animation: shake 0.82s cubic-bezier(.36, .07, .19, .97) both;
+            transform: translate3d(0, 0, 0);
+        }
+
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(4px, 0, 0);
+            }
+        }
+    </style>
+
 </head>
+
 <body>
-    Hi, this is myfiles on github
+    <template id="home-template">
+        <div>
+            Link to the github repo <a target="_blank"
+                href="https://github.com/kashodiya/myfiles">https://github.com/kashodiya/myfiles</a>.
+            <h2>My Files</h2>
+            <ul>
+                <li v-for="(file, i) in state.allFiles" :ref="'link-' + i">
+                    <v-btn icon @click="copyFileLink(file, i)">
+                        <v-icon>mdi-content-copy</v-icon>
+                    </v-btn>
+                    {{file}}
+                </li>
+            </ul>
+        </div>
+    </template>
+
+
+    <template id="bar-template">
+        <div>
+            <h2>This is bar</h2>
+        </div>
+    </template>
+
+    <div id="app">
+        <v-app>
+            <v-app-bar app color="deep-purple accent-4" dark>
+                <!-- <v-app-bar-nav-icon></v-app-bar-nav-icon> -->
+                <v-toolbar-title style="cursor: pointer" @click="$router.push('/')">
+                    My Files
+                </v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-spacer></v-spacer>
+                <v-btn href="https://github.com/kashodiya/myfiles" icon target="_blank">
+                    <v-icon>mdi-ghost</v-icon>
+                </v-btn>
+            </v-app-bar>
+
+            <v-main>
+                <v-container fluid>
+                    <router-view></router-view>
+                </v-container>
+            </v-main>
+
+            <v-footer app>
+                Kaushik Ashodiya
+            </v-footer>
+        </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vuetify/2.6.2/vuetify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/3.5.3/vue-router.min.js"></script>
+
+    <script>
+
+        var store = {
+            state: {
+                allFiles: []    // See Vue created method
+            }
+        }
+
+
+        const Home = Vue.component('Home', {
+            template: '#home-template',
+            data() {
+                return {
+                    state: store.state
+                }
+            },
+            methods: {
+                copyFileLink(fileName, index) {
+                    let link = this.$refs['link-' + index][0];
+                    link.classList.add('shake');
+
+                    setTimeout(() => {
+                        link.classList.remove('shake');
+                    }, 1000);
+                    
+                    console.log(link);
+
+                    navigator.clipboard.writeText(fileName);
+                }
+            },
+            created() {
+                console.log('Home created');
+            }
+        })
+
+        const Bar = Vue.component('Bar', {
+            template: '#bar-template',
+            data() {
+                return {
+                    state: store.state
+                }
+            },
+            methods: {
+            },
+            created() {
+                console.log('Bar created');
+            }
+        })
+
+        const routes = [
+            { path: '/', component: Home },
+            { path: '/bar', component: Bar }
+        ]
+
+        const router = new VueRouter({
+            routes
+        })
+
+        new Vue({
+            data() {
+                return {
+                    state: store.state
+                }
+            },
+            el: '#app',
+            router,
+            vuetify: new Vuetify(),
+            async created() {
+                console.log('Vue created');
+                let allFiles = await (await fetch('all-files.json')).json();
+                store.state.allFiles = allFiles;
+                console.log({ allFiles });
+            }
+        })
+
+    </script>
 </body>
+
 </html>
