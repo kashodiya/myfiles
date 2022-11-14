@@ -183,7 +183,13 @@
 
                 let baseUrl = window.location.href;
                 let pos = baseUrl.indexOf('index.html');
-                baseUrl = baseUrl.substring(0, pos - 1);
+                if(pos == -1){
+                    //You are browing real site
+                    baseUrl.substring(0, baseUrl.length - 3);
+                }else{
+                    //You are testing locally
+                    baseUrl = baseUrl.substring(0, pos - 1);
+                }
                 console.log({baseUrl});
                 store.state.baseUrl = baseUrl;
 
