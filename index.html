@@ -182,12 +182,12 @@
                 console.log({ allFiles });
 
                 let baseUrl = window.location.href;
-                let pos = baseUrl.indexOf('index.html');
-                if(pos == -1){
+                if(baseUrl.indexOf('kashodiya.github.io') >= 0){
                     //You are browing real site
                     baseUrl = 'https://kashodiya.github.io/myfiles';
                 }else{
                     //You are testing locally
+                    let pos = baseUrl.indexOf('index.html');
                     baseUrl = baseUrl.substring(0, pos - 1);
                 }
                 console.log({baseUrl});
