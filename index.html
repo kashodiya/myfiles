@@ -43,16 +43,40 @@
 
 <body>
     <template id="home-template">
-        <div>
-            Link to the github repo <a target="_blank"
-                href="https://github.com/kashodiya/myfiles">https://github.com/kashodiya/myfiles</a>.
+        <div v-resize="onResize">
+            <!-- Link to the github repo <a target="_blank"
+                href="https://github.com/kashodiya/myfiles">https://github.com/kashodiya/myfiles</a>. -->
             <h2>My Files</h2>
-            <ul>
+
+            <v-card-title>
+                <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line hide-details>
+                </v-text-field>
+            </v-card-title>
+            <div ref="resizableDiv">
+                <v-data-table :search="search" :headers="filesHeaders" :items="state.fileList" XXitems-per-page="10"
+                    hide-default-footer disable-pagination fixed-header class="elevation-1" :height="tableHeight">
+                    <template v-slot:item.actions="{ item }">
+                        <v-btn icon @click="copyFileLink(item.fileName, item.index)">
+                            <v-icon>mdi-content-copy</v-icon>
+                        </v-btn>
+
+                        <v-btn icon @click="openFile(item.fileName)">
+                            <v-icon>mdi-open-in-new</v-icon>
+                        </v-btn>
+
+                        <v-btn icon @click="playFile(item.fileName)">
+                            <v-icon>mdi-play-circle</v-icon>
+                        </v-btn>
+                    </template>
+                </v-data-table>
+            </div>
+
+            <!-- <ul>
                 <li v-for="(file, i) in state.allFiles" :ref="'link-' + i">
                     <v-btn icon @click="copyFileLink(file, i)">
                         <v-icon>mdi-content-copy</v-icon>
                     </v-btn>
-                                        
+
                     <v-btn icon @click="openFile(file)">
                         <v-icon>mdi-open-in-new</v-icon>
                     </v-btn>
@@ -63,7 +87,7 @@
 
                     {{file}}
                 </li>
-            </ul>
+            </ul> -->
         </div>
     </template>
 
@@ -109,6 +133,7 @@
         var store = {
             state: {
                 allFiles: [],    // See Vue created method
+                fileList: [],
                 baseUrl: ''     // See Vue created method
             }
         }
@@ -117,19 +142,32 @@
             template: '#home-template',
             data() {
                 return {
-                    state: store.state
+                    state: store.state,
+                    search: '',
+                    tableHeight: 100,
+                    filesHeaders: [
+                        { text: 'Action', value: 'actions' },
+                        { text: 'Ext', value: 'ext' },
+                        { text: 'Name', value: 'name' },
+                        { text: 'Path', value: 'fileName' },
+                    ]
                 }
             },
             methods: {
-                playFile(fileName){
-                    if(fileName.endsWith('.zip')){
+                onResize() {
+                    this.tableHeight = window.innerHeight -
+                        this.$refs.resizableDiv.getBoundingClientRect().y - 70;
+
+                },
+                playFile(fileName) {
+                    if (fileName.endsWith('.zip')) {
                         let url = 'https://kashodiya.github.io/swar-keyboard-composer/?sourceLink=' + this.state.baseUrl + fileName;
                         this.openURL(url);
-                    }else{
+                    } else {
                         this.openFile(fileName);
                     }
                 },
-                openFile(fileName){
+                openFile(fileName) {
                     // https://kashodiya.github.io/myfiles/#/
                     // let url = window.location.href;
                     // let pos = url.indexOf('index.html');
@@ -137,9 +175,9 @@
                     let url = this.state.baseUrl + fileName;
                     this.openURL(url);
                 },
-                openURL(url){
+                openURL(url) {
                     console.log('Opening: ' + url);
-                    window.open(url, '_blank').focus();                   
+                    window.open(url, '_blank').focus();
                 },
                 copyFileLink(fileName, index) {
                     let link = this.$refs['link-' + index][0];
@@ -195,13 +233,19 @@
                 console.log('Vue created');
                 let allFiles = await (await fetch('all-files.json')).json();
                 store.state.allFiles = allFiles.sort();
-                console.log({ allFiles });
+
+                store.state.fileList = store.state.allFiles.map((fileName, index) => ({
+                    fileName, index, ext: fileName.split('.').pop().toUpperCase(),
+                    name: fileName.split('/').pop()
+                }));
+
+                console.log({ allFiles, fileList: store.state.fileList });
 
                 let baseUrl = window.location.href;
-                if(baseUrl.indexOf('kashodiya.github.io') >= 0){
+                if (baseUrl.indexOf('kashodiya.github.io') >= 0) {
                     //You are browing real site
                     baseUrl = 'https://kashodiya.github.io/myfiles';
-                }else{
+                } else {
                     //You are testing locally
                     let pos = baseUrl.indexOf('index.html');
                     baseUrl = baseUrl.substring(0, pos - 1);
@@ -209,7 +253,7 @@
                 //TODO: Comment following line
                 baseUrl = 'https://kashodiya.github.io/myfiles';
 
-                console.log({baseUrl});
+                console.log({ baseUrl });
                 store.state.baseUrl = baseUrl;
 
             }
